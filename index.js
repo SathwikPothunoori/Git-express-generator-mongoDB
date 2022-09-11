@@ -1,6 +1,7 @@
 const express =require('express')
 const mongoClient =require('mongodb').MongoClient
 const assert =require('assert')
+const dboper = require('./operations');
 
 // address of the database
 const url = 'mongodb://localhost:27017/'
@@ -16,27 +17,48 @@ mongoClient.connect(url , (err , client)=>{
 
     const db = client.db(dbname)  // accesing  a database
 
-    const collection = db.collection('it') //it provides various different functions to use on a database
 
-    collection.insertOne({"name":"sai" ,"roll":"107"} , (err , result)=>{
-        assert.equal(err ,null)
 
-        console.log(result.ops)
+    dboper.insertDocument(db ,{name:"sai" ,roll:"107"} , "it" ,(result)=>{
+        console.log("Inserted document \n ",result.ops)
 
-        collection.find({}).toArray((err , docs)=>{
-            assert.equal(err ,null)
-            
-            console.log('Found:\n ')
-            console.log(docs)
+        dboper.findDocument(db , "it" ,(docs)=>{
+            console.log("Found \n" , docs)
 
-            //cleaning the db
-            db.dropCollection('it' , (err , result)=>{
-                assert.equal(err , null)
+            dboper.updateDocument(db ,{name:"sai"} ,{name:"saiTeja"} ,"it" , (result)=>{
+                console.log("Updated Document \n" , result.result);//updated doc is here result.result
 
-                client.close()
+                dboper.findDocument(db , "it" ,(docs)=>{
+                    console.log("Found Updated \n" , docs)
+
+                    db.dropCollection("it",(result)=>{
+                        console.log("Dropped collection :\n"  , result);
+
+                        client.close();
+                    })
+                })
             })
-
-
         })
-    })
+    }) 
+
+
+    // collection.insertOne({"name":"sai" ,"roll":"107"} , (err , result)=>{
+    //     assert.equal(err ,null)
+
+    //     console.log(result.ops)
+
+    //     collection.find({}).toArray((err , docs)=>{
+    //         assert.equal(err ,null)
+            
+    //         console.log('Found:\n ')
+    //         console.log(docs)
+
+    //         //cleaning the db
+    //         db.dropCollection('it' , (err , result)=>{
+    //             assert.equal(err , null)
+
+    //             client.close()
+    //         })
+    //     })
+    // })
 })
