@@ -11,16 +11,27 @@ connect
     console.log("connected correctly to server")
 
     Dishes.create({
-        name:"Egg",
+        name:"Paneer",
         description:"tagda"
     })
     .then((dish)=>{
         console.log(dish)
 
-        return Dishes.find({}).exec()
+        return Dishes.findByIdAndUpdate(dish._id , {
+            $set:{description:"updated "}
+        },
+        {new :true}).exec()
+                
+    
     })
-    .then((dishes)=>{
-        console.log(dishes)
+    .then((dish)=>{
+        console.log(dish)
+        dish.comments.push({rating:4 , comment:"Good"})
+         
+        return dish.save()
+    })
+    .then((dish)=>{
+        console.log(dish)
 
         return Dishes.remove({})
     })
